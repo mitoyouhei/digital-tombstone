@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./HomePage.css";
 
 const HomePage = () => {
   const [tombstones, setTombstones] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    navigate("/login"); // 重定向到登录页面
+  };
 
   useEffect(() => {
     const fetchTombstones = async () => {
       try {
         const res = await axios.get(
-          "https://digitaltombstone-98a51f052cac.herokuapp.com/api/tombstones"
+          `${process.env.REACT_APP_API_ENDPOINT}/api/tombstones`
         );
         setTombstones(res.data);
         setLoading(false);
@@ -20,6 +29,10 @@ const HomePage = () => {
         setLoading(false);
       }
     };
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) {
+      setUser(storedUsername);
+    }
     fetchTombstones();
   }, []);
 
@@ -27,10 +40,14 @@ const HomePage = () => {
     <div>
       <header className="header">
         <h1>Digital Tombstone</h1>
+        {user ? <h3>Welcome {user}</h3> : null}
         <nav>
           <Link to="/">Home</Link>
           <Link to="/create">Create Tombstone</Link>
+          <Link to="/login">Login</Link>
+          <Link to="/register">Register</Link>
           <Link to="/contact">Contact Us</Link>
+          <button onClick={logout}>Logout</button>
         </nav>
       </header>
       <main className="main">
