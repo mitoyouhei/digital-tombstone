@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./CreateTombstone.css";
 
 const CreateTombstone = () => {
   const [tombstone, setTombstone] = useState({
@@ -31,56 +30,73 @@ const CreateTombstone = () => {
   };
 
   return (
-    <div>
-      <header className="header">
-        <h1>Digital Tombstone</h1>
-        <nav>
-          <a href="/">Home</a>
-          <a href="/create">Create Tombstone</a>
-          <a href="/contact">Contact Us</a>
-        </nav>
-      </header>
-      <main className="main">
-        <h1>Create New Tombstone</h1>
-        <div className="form-container">
-          <form onSubmit={handleSubmit}>
+    <div className="container d-flex align-items-center justify-content-center">
+      <div className="col-md-8">
+        <h2 className="text-center mb-4">Create New Tombstone</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label htmlFor="name" className="form-label">
+              Name
+            </label>
             <input
               type="text"
+              id="name"
               name="name"
-              placeholder="Name"
+              className="form-control"
+              placeholder="Enter name"
               value={tombstone.name}
               onChange={handleChange}
+              required
             />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="birthDate" className="form-label">
+              Birth Date
+            </label>
             <input
               type="date"
+              id="birthDate"
               name="birthDate"
-              placeholder="Birth Date"
+              className="form-control"
               value={tombstone.birthDate}
               onChange={handleChange}
+              required
             />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="deathDate" className="form-label">
+              Death Date
+            </label>
             <input
               type="date"
+              id="deathDate"
               name="deathDate"
-              placeholder="Death Date"
+              className="form-control"
               value={tombstone.deathDate}
               onChange={handleChange}
+              required
             />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="message" className="form-label">
+              Message
+            </label>
             <textarea
+              id="message"
               name="message"
-              placeholder="Message"
+              className="form-control"
+              placeholder="Enter message"
               value={tombstone.message}
               onChange={handleChange}
+              rows="4"
+              required
             ></textarea>
-            <button type="submit">Create</button>
-          </form>
-        </div>
-      </main>
-      <footer className="footer">
-        <p>&copy; 2024 Digital Tombstone. All rights reserved.</p>
-        <a href="#fackbook">Facebook</a>
-        <a href="#twitter">Twitter</a>
-        <a href="#instagram">Instagram</a>
-      </footer>
+          </div>
+          <button type="submit" className="btn btn-primary w-100">
+            Create
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
