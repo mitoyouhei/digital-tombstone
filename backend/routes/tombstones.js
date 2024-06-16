@@ -10,6 +10,7 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   const tombstones = await Tombstone.find();
+  tombstones.push({ test: "test" });
   res.json(tombstones);
 });
 
