@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -10,13 +11,10 @@ app.use(express.json());
 app.use("/api/tombstones", tombstones);
 
 mongoose
-  .connect(
-    "mongodb+srv://mitoyouhei:WaVD8X7YrKzP0r4c@cluster0.j0sxit0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
+  .connect(process.env.DATABASE_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 

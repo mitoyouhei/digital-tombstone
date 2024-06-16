@@ -11,7 +11,7 @@ const HomePage = () => {
     const fetchTombstones = async () => {
       try {
         const res = await axios.get(
-          "https://digitaltombstone-98a51f052cac.herokuapp.com/api/tombstones"
+          `${process.env.REACT_APP_API_ENDPOINT}/api/tombstones`
         );
         setTombstones(res.data);
         setLoading(false);
