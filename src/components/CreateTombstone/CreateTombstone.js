@@ -19,7 +19,10 @@ const CreateTombstone = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5001/api/tombstones", tombstone);
+      await axios.post(
+        `${process.env.REACT_APP_API_ENDPOINT}/api/tombstones`,
+        tombstone
+      );
       alert("Tombstone created!");
       navigate("/");
     } catch (error) {
