@@ -22,7 +22,11 @@ const Layout = ({ children }) => {
   return (
     <div className="container">
       <header className="d-flex justify-content-between align-items-center py-3">
-        <h1>Digital Tombstone</h1>
+        <h1>
+          <Link className="nav-link" to="/">
+            Digital Tombstone
+          </Link>
+        </h1>
         <nav className="nav">
           <Link className="nav-link" to="/">
             Home
