@@ -5,6 +5,7 @@ import CreateTombstone from "./components/CreateTombstone";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import ForgotPassword from "./components/ForgotPassword";
+import TombstoneDetail from "./components/TombstoneDetail";
 import Layout from "./Layout";
 
 const App = () => {
@@ -17,6 +18,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/tombstones/:id" element={<TombstoneDetail />} />
         </Routes>
       </Layout>
     </Router>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
   const [tombstones, setTombstones] = useState([]);
@@ -34,15 +35,17 @@ const HomePage = () => {
         <div className="row">
           {tombstones.map((tombstone) => (
             <div className="col-md-4 mb-4" key={tombstone._id}>
-              <div className="card h-100">
-                <div className="card-body">
-                  <h2 className="card-title">{tombstone.name}</h2>
-                  <p className="card-text">
-                    {tombstone.birthDate} - {tombstone.deathDate}
-                  </p>
-                  <p className="card-text">{tombstone.message}</p>
+              <Link className="nav-link" to={`/tombstones/${tombstone._id}`}>
+                <div className="card h-100">
+                  <div className="card-body">
+                    <h2 className="card-title">{tombstone.name}</h2>
+                    <p className="card-text">
+                      {tombstone.birthDate} - {tombstone.deathDate}
+                    </p>
+                    <p className="card-text">{tombstone.message}</p>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </div>
           ))}
         </div>
