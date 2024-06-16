@@ -51,9 +51,9 @@ const HomePage = () => {
       </main>
       <footer className="footer">
         <p>&copy; 2024 Digital Tombstone. All rights reserved.</p>
-        <a href="#">Facebook</a>
-        <a href="#">Twitter</a>
-        <a href="#">Instagram</a>
+        <a href="#fackbook">Facebook</a>
+        <a href="#twitter">Twitter</a>
+        <a href="#instagram">Instagram</a>
       </footer>
     </div>
   );
