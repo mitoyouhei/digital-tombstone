@@ -10,7 +10,9 @@ const HomePage = () => {
   useEffect(() => {
     const fetchTombstones = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/api/tombstones");
+        const res = await axios.get(
+          "https://digitaltombstone-98a51f052cac.herokuapp.com/api/tombstones"
+        );
         setTombstones(res.data);
         setLoading(false);
       } catch (error) {
