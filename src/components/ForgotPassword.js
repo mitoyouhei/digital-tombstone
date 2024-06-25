@@ -7,10 +7,9 @@ const ForgotPassword = () => {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(
-        `${process.env.REACT_APP_API_ENDPOINT}/api/auth/forgot`,
-        { email }
-      );
+      await axios.post(`${process.env.REACT_APP_API_ENDPOINT}/auth/forgot`, {
+        email,
+      });
       alert("Recovery email sent");
     } catch (error) {
       console.error("Error sending recovery email", error);

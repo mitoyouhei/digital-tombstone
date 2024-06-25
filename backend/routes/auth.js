@@ -7,8 +7,43 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const Tombstone = require("../models/Tombstone");
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+
+// Facebook 登录
+router.get(
+  "/facebook/:tombstoneId",
+  passport.authenticate("facebook", {
+    scope: ["email"],
+    state: "{tombstoneId}",
+  })
+);
+
+router.get(
+  "/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  async (req, res) => {
+    const tombstoneId = req.query.state;
+    try {
+      await Tombstone.findByIdAndUpdate(
+        tombstoneId,
+        {
+          facebookId: req.user.facebookId,
+          facebookToken: req.user.facebookToken,
+          facebookName: req.user.facebookName,
+          facebookEmail: req.user.facebookEmail,
+          facebookPhoto: req.user.facebookPhoto,
+        },
+        { new: true }
+      );
+      res.redirect(`http://localhost:3000/tombstones/${tombstoneId}`);
+    } catch (error) {
+      res.status(500).send("Error linking Facebook account to tombstone");
+    }
+  }
+);
+
 
 // Register
 router.post("/register", async (req, res) => {

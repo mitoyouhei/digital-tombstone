@@ -5,6 +5,7 @@ const TwitterStrategy = require("passport-twitter").Strategy;
 const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 
+
 // Local Strategy
 passport.use(
   new LocalStrategy(async (username, password, done) => {
@@ -20,31 +21,34 @@ passport.use(
   })
 );
 
-// // Facebook Strategy
-// passport.use(
-//   new FacebookStrategy(
-//     {
-//       clientID: process.env.FACEBOOK_APP_ID,
-//       clientSecret: process.env.FACEBOOK_APP_SECRET,
-//       callbackURL: "http://localhost:3000/api/auth/facebook/callback",
-//     },
-//     async (accessToken, refreshToken, profile, done) => {
-//       try {
-//         let user = await User.findOne({ facebookId: profile.id });
-//         if (!user) {
-//           user = new User({
-//             username: profile.displayName,
-//             facebookId: profile.id,
-//           });
-//           await user.save();
-//         }
-//         return done(null, user);
-//       } catch (error) {
-//         return done(error);
-//       }
-//     }
-//   )
-// );
+// Facebook Strategy
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: process.env.FACEBOOK_APP_ID,
+      clientSecret: process.env.FACEBOOK_APP_SECRET,
+      callbackURL: "http://localhost:5001/api/auth/facebook/callback",
+      profileFields: ["id", "displayName", "photos", "email"],
+      passReqToCallback: true,
+    },
+    async (req, accessToken, refreshToken, profile, done) => {
+      try {
+        const user = {
+          facebookId: profile.id,
+          facebookToken: accessToken,
+          facebookName: profile.displayName,
+          facebookEmail: profile.emails[0].value,
+          facebookPhoto: profile.photos[0].value,
+        };
+        return done(null, user);
+      } catch (error) {
+        console.error("Error during authentication", error);
+        return done(error);
+      }
+    }
+  )
+);
+
 
 // // Twitter Strategy
 // passport.use(

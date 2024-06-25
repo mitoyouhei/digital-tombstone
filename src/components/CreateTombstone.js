@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const CreateTombstone = () => {
+  const [submiting, setSumbiting] = useState(false);
   const [tombstone, setTombstone] = useState({
     name: "",
     birthDate: "",
@@ -17,15 +18,17 @@ const CreateTombstone = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSumbiting(true);
     try {
       await axios.post(
         `${process.env.REACT_APP_API_ENDPOINT}/api/tombstones`,
         tombstone
       );
-      alert("Tombstone created!");
       navigate("/");
     } catch (error) {
       console.error("Error creating tombstone:", error);
+    } finally {
+      setSumbiting(false);
     }
   };
 
@@ -74,7 +77,6 @@ const CreateTombstone = () => {
               className="form-control"
               value={tombstone.deathDate}
               onChange={handleChange}
-              required
             />
           </div>
           <div className="mb-3">
@@ -89,12 +91,19 @@ const CreateTombstone = () => {
               value={tombstone.message}
               onChange={handleChange}
               rows="4"
-              required
             ></textarea>
           </div>
-          <button type="submit" className="btn btn-primary w-100">
-            Create
-          </button>
+          {submiting ? (
+            <div className="d-flex justify-content-center">
+              <div className="spinner-border" role="status">
+                <span className="sr-only"></span>
+              </div>
+            </div>
+          ) : (
+            <button type="submit" className="btn btn-primary w-100">
+              Create
+            </button>
+          )}
         </form>
       </div>
     </div>

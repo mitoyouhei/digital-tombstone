@@ -51,6 +51,28 @@ const TombstoneDetail = () => {
             {new Date(tombstone.deathDate).toLocaleDateString()}
           </p>
           <p className="card-text text-center">{tombstone.message}</p>
+          {tombstone.facebookId && (
+            <div className="text-center mt-4">
+              <h3>Facebook Profile</h3>
+              <img
+                src={tombstone.facebookPhoto}
+                alt={tombstone.facebookName}
+                className="rounded-circle"
+              />
+              <p>{tombstone.facebookName}</p>
+              <p>{tombstone.facebookEmail}</p>
+            </div>
+          )}
+          {!tombstone.facebookId && (
+            <div className="text-center mt-4">
+              <a
+                href={`${process.env.REACT_APP_API_ENDPOINT}/api/auth/facebook/${tombstone._id}`}
+                className="btn btn-primary"
+              >
+                Connect Facebook
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>

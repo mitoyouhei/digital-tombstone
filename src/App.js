@@ -6,6 +6,8 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import ForgotPassword from "./components/ForgotPassword";
 import TombstoneDetail from "./components/TombstoneDetail";
+import FacebookCallback from "./components/FacebookCallback";
+import MyProfile from "./components/MyProfile";
 import Layout from "./Layout";
 
 const App = () => {
@@ -19,6 +21,11 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/tombstones/:id" element={<TombstoneDetail />} />
+          <Route path="/profile" element={<MyProfile />} />
+          <Route
+            path="/auth/facebook/callback"
+            element={<FacebookCallback />}
+          />
         </Routes>
       </Layout>
     </Router>

@@ -22,6 +22,23 @@ const HomePage = () => {
     fetchTombstones();
   }, []);
 
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this tombstone?"
+    );
+    if (confirmDelete) {
+      try {
+        await axios.patch(
+          `${process.env.REACT_APP_API_ENDPOINT}/api/tombstones/${id}`
+        );
+        setTombstones(tombstones.filter((tombstone) => tombstone._id !== id));
+        alert("Tombstone deleted!");
+      } catch (error) {
+        console.error("Error deleting tombstone:", error);
+      }
+    }
+  };
+
   return (
     <>
       <h1 className="text-center my-4">Latest Tombstones</h1>
@@ -40,9 +57,19 @@ const HomePage = () => {
                   <div className="card-body">
                     <h2 className="card-title">{tombstone.name}</h2>
                     <p className="card-text">
-                      {tombstone.birthDate} - {tombstone.deathDate}
+                      {new Date(tombstone.birthDate).toLocaleDateString()}
+                      {tombstone.deathDate
+                        ? " - " +
+                          new Date(tombstone.deathDate).toLocaleDateString()
+                        : ""}
                     </p>
                     <p className="card-text">{tombstone.message}</p>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => handleDelete(tombstone._id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               </Link>
