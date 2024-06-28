@@ -10,10 +10,10 @@ const crypto = require("crypto");
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 // Facebook 登录
-router.get(
-  "/facebook",
-  passport.authenticate("facebook", { scope: ["email"] })
-);
+router.get("/facebook", (req, res, next) => {
+  req.session.token = req.query.token;
+  passport.authenticate("facebook", { scope: ["email"] })(req, res, next);
+});
 
 router.get(
   "/facebook/callback",
@@ -37,6 +37,28 @@ router.get(
     }
   }
 );
+// disconnect Facebook
+router.post("/facebook/disconnect", async (req, res) => {
+  const token = req.header("Authorization").replace("Bearer ", "");
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    user.facebookId = undefined;
+    user.facebookToken = undefined;
+    user.facebookName = undefined;
+    user.facebookEmail = undefined;
+    user.facebookPhoto = undefined;
+    await user.save();
+
+    res.status(200).send("Facebook disconnected successfully");
+  } catch (error) {
+    res.status(500).send("Error disconnecting Facebook");
+  }
+});
 
 // Register
 router.post("/register", async (req, res) => {
@@ -118,16 +140,6 @@ router.post("/reset/:token", async (req, res) => {
     res.status(500).send("Error in resetting password");
   }
 });
-
-// Third-party login with Facebook
-router.get("/auth/facebook", passport.authenticate("facebook"));
-router.get(
-  "/auth/facebook/callback",
-  passport.authenticate("facebook", {
-    successRedirect: "/",
-    failureRedirect: "/login",
-  })
-);
 
 // Third-party login with Twitter
 router.get("/twitter", passport.authenticate("twitter"));

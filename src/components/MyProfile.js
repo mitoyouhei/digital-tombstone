@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "bootstrap/dist/css/bootstrap.min.css";
+
+const token = localStorage.getItem("token");
 
 const MyProfile = () => {
   const [user, setUser] = useState(null);
@@ -9,7 +10,6 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const token = localStorage.getItem("token");
         const res = await axios.get(
           `${process.env.REACT_APP_API_ENDPOINT}/api/profile`,
           {
@@ -28,6 +28,33 @@ const MyProfile = () => {
 
     fetchUserProfile();
   }, []);
+
+  const disconnectFacebook = async () => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_API_ENDPOINT}/api/auth/facebook/disconnect`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("Facebook disconnected successfully");
+      // 更新用户信息以反映断开连接后的状态
+      setUser({
+        ...user,
+        facebookId: null,
+        facebookToken: null,
+        facebookName: null,
+        facebookEmail: null,
+        facebookPhoto: null,
+      });
+    } catch (error) {
+      console.error("Error disconnecting Facebook", error);
+      alert("Error disconnecting Facebook");
+    }
+  };
 
   if (loading) {
     return (
@@ -62,11 +89,17 @@ const MyProfile = () => {
               />
               <p>{user.facebookName}</p>
               <p>{user.facebookEmail}</p>
+              <button
+                className="btn btn-danger mt-3"
+                onClick={disconnectFacebook}
+              >
+                Disconnect Facebook
+              </button>
             </div>
           ) : (
             <div className="text-center mt-4">
               <a
-                href={`${process.env.REACT_APP_API_ENDPOINT}/api/auth/facebook`}
+                href={`${process.env.REACT_APP_API_ENDPOINT}/api/auth/facebook?token=${token}`}
                 className="btn btn-primary"
               >
                 Connect Facebook

@@ -4,7 +4,7 @@ const FacebookStrategy = require("passport-facebook").Strategy;
 const TwitterStrategy = require("passport-twitter").Strategy;
 const User = require("./models/User");
 const bcrypt = require("bcryptjs");
-
+const jwt = require("jsonwebtoken");
 
 // Local Strategy
 passport.use(
@@ -29,19 +29,35 @@ passport.use(
       clientSecret: process.env.FACEBOOK_APP_SECRET,
       callbackURL: "http://localhost:5001/api/auth/facebook/callback",
       profileFields: ["id", "displayName", "photos", "email"],
+      passReqToCallback: true, // Allow us to access req in callback
     },
-    async (accessToken, refreshToken, profile, done) => {
+    async (req, accessToken, refreshToken, profile, done) => {
+      const token = req.session.token;
+
       try {
         let user = await User.findOne({ facebookId: profile.id });
         if (!user) {
-          user = new User({
-            facebookId: profile.id,
-            facebookToken: accessToken,
-            facebookName: profile.displayName,
-            facebookEmail: profile.emails[0].value,
-            facebookPhoto: profile.photos[0].value,
-          });
-          await user.save();
+          // Check if there is a logged-in user
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+          req.user = decoded;
+          if (req.user) {
+            user = await User.findById(req.user.id);
+            user.facebookId = profile.id;
+            user.facebookToken = accessToken;
+            user.facebookName = profile.displayName;
+            user.facebookEmail = profile.emails[0].value;
+            user.facebookPhoto = profile.photos[0].value;
+            await user.save();
+          } else {
+            user = new User({
+              facebookId: profile.id,
+              facebookToken: accessToken,
+              facebookName: profile.displayName,
+              facebookEmail: profile.emails[0].value,
+              facebookPhoto: profile.photos[0].value,
+            });
+            await user.save();
+          }
         } else {
           user.facebookToken = accessToken;
           user.facebookName = profile.displayName;
@@ -56,7 +72,6 @@ passport.use(
     }
   )
 );
-
 
 // // Twitter Strategy
 // passport.use(
@@ -83,6 +98,7 @@ passport.use(
 //     }
 //   )
 // );
+
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
