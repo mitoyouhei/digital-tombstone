@@ -3,31 +3,25 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
-const Tombstone = require("../models/Tombstone");
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 // Facebook 登录
 router.get(
-  "/facebook/:tombstoneId",
-  passport.authenticate("facebook", {
-    scope: ["email"],
-    state: "{tombstoneId}",
-  })
+  "/facebook",
+  passport.authenticate("facebook", { scope: ["email"] })
 );
 
 router.get(
   "/facebook/callback",
   passport.authenticate("facebook", { failureRedirect: "/login" }),
   async (req, res) => {
-    const tombstoneId = req.query.state;
     try {
-      await Tombstone.findByIdAndUpdate(
-        tombstoneId,
+      await User.findByIdAndUpdate(
+        req.user.id,
         {
           facebookId: req.user.facebookId,
           facebookToken: req.user.facebookToken,
@@ -37,13 +31,12 @@ router.get(
         },
         { new: true }
       );
-      res.redirect(`http://localhost:3000/tombstones/${tombstoneId}`);
+      res.redirect("http://localhost:3000/profile");
     } catch (error) {
-      res.status(500).send("Error linking Facebook account to tombstone");
+      res.status(500).send("Error linking Facebook account to user");
     }
   }
 );
-
 
 // Register
 router.post("/register", async (req, res) => {
@@ -62,7 +55,7 @@ router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   try {
     const user = await User.findOne({ username });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await user.comparePassword(password))) {
       return res.status(401).send("Invalid credentials");
     }
     const token = jwt.sign(
@@ -115,6 +108,7 @@ router.post("/reset/:token", async (req, res) => {
       return res
         .status(400)
         .send("Password reset token is invalid or has expired");
+
     user.password = req.body.password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
@@ -136,9 +130,9 @@ router.get(
 );
 
 // Third-party login with Twitter
-router.get("/auth/twitter", passport.authenticate("twitter"));
+router.get("/twitter", passport.authenticate("twitter"));
 router.get(
-  "/auth/twitter/callback",
+  "/twitter/callback",
   passport.authenticate("twitter", {
     successRedirect: "/",
     failureRedirect: "/login",

@@ -29,20 +29,28 @@ passport.use(
       clientSecret: process.env.FACEBOOK_APP_SECRET,
       callbackURL: "http://localhost:5001/api/auth/facebook/callback",
       profileFields: ["id", "displayName", "photos", "email"],
-      passReqToCallback: true,
     },
-    async (req, accessToken, refreshToken, profile, done) => {
+    async (accessToken, refreshToken, profile, done) => {
       try {
-        const user = {
-          facebookId: profile.id,
-          facebookToken: accessToken,
-          facebookName: profile.displayName,
-          facebookEmail: profile.emails[0].value,
-          facebookPhoto: profile.photos[0].value,
-        };
+        let user = await User.findOne({ facebookId: profile.id });
+        if (!user) {
+          user = new User({
+            facebookId: profile.id,
+            facebookToken: accessToken,
+            facebookName: profile.displayName,
+            facebookEmail: profile.emails[0].value,
+            facebookPhoto: profile.photos[0].value,
+          });
+          await user.save();
+        } else {
+          user.facebookToken = accessToken;
+          user.facebookName = profile.displayName;
+          user.facebookEmail = profile.emails[0].value;
+          user.facebookPhoto = profile.photos[0].value;
+          await user.save();
+        }
         return done(null, user);
       } catch (error) {
-        console.error("Error during authentication", error);
         return done(error);
       }
     }

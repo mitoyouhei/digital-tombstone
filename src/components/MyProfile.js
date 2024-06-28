@@ -52,7 +52,7 @@ const MyProfile = () => {
         <div className="card-body">
           <h2 className="card-title text-center">{user.username}</h2>
           <p className="text-center">{user.email}</p>
-          {user.facebookId && (
+          {user.facebookId ? (
             <div className="text-center mt-4">
               <h3>Facebook Profile</h3>
               <img
@@ -62,6 +62,15 @@ const MyProfile = () => {
               />
               <p>{user.facebookName}</p>
               <p>{user.facebookEmail}</p>
+            </div>
+          ) : (
+            <div className="text-center mt-4">
+              <a
+                href={`${process.env.REACT_APP_API_ENDPOINT}/api/auth/facebook`}
+                className="btn btn-primary"
+              >
+                Connect Facebook
+              </a>
             </div>
           )}
         </div>
