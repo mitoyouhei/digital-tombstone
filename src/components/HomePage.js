@@ -1,5 +1,3 @@
-import { color } from "framer-motion";
-
 const slideContainer = {
   color: "white",
   position: "fixed",
