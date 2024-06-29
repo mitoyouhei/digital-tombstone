@@ -1,3 +1,5 @@
+import AutoPlayAudio from "./AutoPlayAudio";
+
 const slideContainer = {
   color: "white",
   position: "fixed",
@@ -17,6 +19,7 @@ const slide = {
 const HomePage = () => {
   return (
     <div style={slideContainer}>
+      <AutoPlayAudio src="/assets/bgm.mp3" />
       <div style={slide}>
         <div>
           <h1>不朽之源</h1>
