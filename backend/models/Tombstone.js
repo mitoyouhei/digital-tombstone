@@ -22,12 +22,6 @@ const tombstoneSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
-
-  facebookId: String,
-  facebookToken: String,
-  facebookName: String,
-  facebookEmail: String,
-  facebookPhoto: String,
 });
 
 module.exports = mongoose.model("Tombstone", tombstoneSchema);

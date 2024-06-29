@@ -50,6 +50,7 @@ passport.use(
             await user.save();
           } else {
             user = new User({
+              username: profile.emails[0].value,
               facebookId: profile.id,
               facebookToken: accessToken,
               facebookName: profile.displayName,
