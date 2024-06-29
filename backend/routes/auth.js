@@ -3,11 +3,9 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const User = require("../models/User");
-const jwt = require("jsonwebtoken");
+const { encodeUserToken, decodeUserToken } = require("../util");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
-
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 // Facebook 登录
 router.get("/facebook", (req, res, next) => {
@@ -31,7 +29,8 @@ router.get(
         },
         { new: true }
       );
-      res.redirect("http://localhost:3000/profile");
+
+      res.redirect(`${process.env.WEB_CLIENT_END_POINT}/profile`);
     } catch (error) {
       res.status(500).send("Error linking Facebook account to user");
     }
@@ -41,8 +40,7 @@ router.get(
 router.post("/facebook/disconnect", async (req, res) => {
   const token = req.header("Authorization").replace("Bearer ", "");
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decodeUserToken(token).id);
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -80,10 +78,7 @@ router.post("/login", async (req, res) => {
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).send("Invalid credentials");
     }
-    const token = jwt.sign(
-      { id: user._id, username: user.username },
-      JWT_SECRET
-    );
+    const token = encodeUserToken(user);
     res.status(200).json({ token, username: user.username });
   } catch (error) {
     res.status(400).send("Error logging in");

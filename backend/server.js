@@ -2,6 +2,7 @@ require("dotenv").config();
 require("./setup_proxy");
 const express = require("express");
 const mongoose = require("mongoose");
+const MongoStore = require("connect-mongo");
 const session = require("express-session");
 const cors = require("cors");
 const app = express();
@@ -21,6 +22,7 @@ app.use(
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: process.env.DATABASE_URL }),
   })
 );
 app.use(passport.initialize());

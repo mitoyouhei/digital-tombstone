@@ -1,10 +1,10 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
-const TwitterStrategy = require("passport-twitter").Strategy;
+// const TwitterStrategy = require("passport-twitter").Strategy;
 const User = require("./models/User");
+const { decodeUserToken } = require("./util");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 
 // Local Strategy
 passport.use(
@@ -27,19 +27,16 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_APP_ID,
       clientSecret: process.env.FACEBOOK_APP_SECRET,
-      callbackURL: "http://localhost:5001/api/auth/facebook/callback",
+      callbackURL: `${process.env.SERVER_END_POINT}/api/auth/facebook/callback`,
       profileFields: ["id", "displayName", "photos", "email"],
       passReqToCallback: true, // Allow us to access req in callback
     },
     async (req, accessToken, refreshToken, profile, done) => {
-      const token = req.session.token;
-
       try {
         let user = await User.findOne({ facebookId: profile.id });
         if (!user) {
           // Check if there is a logged-in user
-          const decoded = jwt.verify(token, process.env.JWT_SECRET);
-          req.user = decoded;
+          req.user = decodeUserToken(req.session.token);
           if (req.user) {
             user = await User.findById(req.user.id);
             user.facebookId = profile.id;
