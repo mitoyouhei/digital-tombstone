@@ -6,28 +6,63 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import ForgotPassword from "./components/ForgotPassword";
 import TombstoneDetail from "./components/TombstoneDetail";
-import FacebookCallback from "./components/FacebookCallback";
 import MyProfile from "./components/MyProfile";
 import Layout from "./Layout";
 
 const App = () => {
   return (
     <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/create" element={<CreateTombstone />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/tombstones/:id" element={<TombstoneDetail />} />
-          <Route path="/profile" element={<MyProfile />} />
-          <Route
-            path="/auth/facebook/callback"
-            element={<FacebookCallback />}
-          />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route
+          path="/create"
+          element={
+            <Layout>
+              <CreateTombstone />
+            </Layout>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <Layout>
+              <Register />
+            </Layout>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <Layout>
+              <Login />
+            </Layout>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <Layout>
+              <ForgotPassword />
+            </Layout>
+          }
+        />
+        <Route
+          path="/tombstones/:id"
+          element={
+            <Layout>
+              <TombstoneDetail />
+            </Layout>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <Layout>
+              <MyProfile />
+            </Layout>
+          }
+        />
+      </Routes>
     </Router>
   );
 };
