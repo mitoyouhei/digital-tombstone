@@ -17,6 +17,7 @@ const Login = () => {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("username", res.data.username);
       navigate("/"); // 登录成功后导航到仪表盘页面
+      window.location.replace(window.location.href);
     } catch (error) {
       console.error("Error logging in", error);
     }

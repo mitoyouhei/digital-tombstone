@@ -47,7 +47,11 @@ const Layout = ({ children }) => {
           <Link className="nav-link" to="/contact">
             Contact Us
           </Link>
-          {user && <span className="nav-link">{user}</span>}
+          {user && (
+            <Link className="nav-link" to="/profile">
+              {user}
+            </Link>
+          )}
           {user && (
             <button className="nav-link btn btn-link" onClick={logout}>
               Logout

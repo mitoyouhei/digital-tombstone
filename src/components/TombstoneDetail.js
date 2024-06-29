@@ -1,40 +1,7 @@
-import React, { Suspense, useRef, useEffect, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
-function Tombstone() {
-  const { scene } = useGLTF("/assets/3d-models/tombstone.glb");
-  const ref = useRef();
-  const [isRotating, setIsRotating] = useState(true);
-  const [scale, setScale] = useState(2);
-
-  let speed = 0.2;
-  // Custom animation loop to rotate the tombstone
-  useFrame(() => {
-    if (ref.current && isRotating) {
-      ref.current.rotation.y += speed; // Adjust rotation speed if needed
-      setScale((prevScale) => prevScale + 0.1);
-      ref.current.scale.set(scale, scale, scale);
-      // Stop rotating after one full rotation (360 degrees or 2 * Math.PI radians)
-      if (ref.current.rotation.y >= 5.5 * Math.PI) {
-        ref.current.rotation.y = 5.5 * Math.PI; // Ensure it stops exactly at one full rotation
-        setIsRotating(false); // Stop the rotation
-      }
-    }
-  });
-
-  return (
-    <primitive
-      ref={ref}
-      object={scene}
-      scale={[5, 5, 5]}
-      position={[0, -5, 0]}
-      rotation={[0, Math.PI, 0]} // Adjust this rotation if needed
-    />
-  );
-}
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const TombstoneDetail = () => {
   const { id } = useParams();
@@ -60,7 +27,7 @@ const TombstoneDetail = () => {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center">
+      <div className="d-flex justify-content-center mt-5">
         <div className="spinner-border" role="status">
           <span className="sr-only"></span>
         </div>
@@ -69,24 +36,36 @@ const TombstoneDetail = () => {
   }
 
   if (!tombstone) {
-    return <div>Tombstone not found</div>;
+    return <div className="text-center mt-5">Tombstone not found</div>;
   }
 
   return (
-    <>
-      <h1 className="text-center mb-4">{tombstone.name}</h1>
-
-      <div style={{ height: 400, marginBottom: 200 }}>
-        <Canvas camera={{ position: [0, 0, 15], fov: 75 }}>
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[10, 10, 10]} intensity={0.8} />
-          <Suspense fallback={null}>
-            <Tombstone />
-          </Suspense>
-          <OrbitControls enableDamping dampingFactor={0.25} enableZoom />
-        </Canvas>
+    <div className="container mt-5">
+      <header className="text-center mb-4">
+        <h1>{tombstone.name}</h1>
+      </header>
+      <div className="card">
+        <div className="card-body">
+          <p className="text-center">
+            {new Date(tombstone.birthDate).toLocaleDateString()} -{" "}
+            {new Date(tombstone.deathDate).toLocaleDateString()}
+          </p>
+          <p className="card-text text-center">{tombstone.message}</p>
+          {tombstone.facebookId && (
+            <div className="text-center mt-4">
+              <h3>Facebook Profile</h3>
+              <img
+                src={tombstone.facebookPhoto}
+                alt={tombstone.facebookName}
+                className="rounded-circle"
+              />
+              <p>{tombstone.facebookName}</p>
+              <p>{tombstone.facebookEmail}</p>
+            </div>
+          )}
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

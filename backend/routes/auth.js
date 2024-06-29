@@ -3,12 +3,60 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const { encodeUserToken, decodeUserToken } = require("../util");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+// Facebook 登录
+router.get("/facebook", (req, res, next) => {
+  req.session.token = req.query.token;
+  passport.authenticate("facebook", { scope: ["email"] })(req, res, next);
+});
+
+router.get(
+  "/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  async (req, res) => {
+    try {
+      await User.findByIdAndUpdate(
+        req.user.id,
+        {
+          facebookId: req.user.facebookId,
+          facebookToken: req.user.facebookToken,
+          facebookName: req.user.facebookName,
+          facebookEmail: req.user.facebookEmail,
+          facebookPhoto: req.user.facebookPhoto,
+        },
+        { new: true }
+      );
+
+      res.redirect(`${process.env.WEB_CLIENT_END_POINT}/profile`);
+    } catch (error) {
+      res.status(500).send("Error linking Facebook account to user");
+    }
+  }
+);
+// disconnect Facebook
+router.post("/facebook/disconnect", async (req, res) => {
+  const token = req.header("Authorization").replace("Bearer ", "");
+  try {
+    const user = await User.findById(decodeUserToken(token).id);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    user.facebookId = undefined;
+    user.facebookToken = undefined;
+    user.facebookName = undefined;
+    user.facebookEmail = undefined;
+    user.facebookPhoto = undefined;
+    await user.save();
+
+    res.status(200).send("Facebook disconnected successfully");
+  } catch (error) {
+    res.status(500).send("Error disconnecting Facebook");
+  }
+});
 
 // Register
 router.post("/register", async (req, res) => {
@@ -27,13 +75,10 @@ router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   try {
     const user = await User.findOne({ username });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await user.comparePassword(password))) {
       return res.status(401).send("Invalid credentials");
     }
-    const token = jwt.sign(
-      { id: user._id, username: user.username },
-      JWT_SECRET
-    );
+    const token = encodeUserToken(user);
     res.status(200).json({ token, username: user.username });
   } catch (error) {
     res.status(400).send("Error logging in");
@@ -80,6 +125,7 @@ router.post("/reset/:token", async (req, res) => {
       return res
         .status(400)
         .send("Password reset token is invalid or has expired");
+
     user.password = req.body.password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
@@ -90,20 +136,10 @@ router.post("/reset/:token", async (req, res) => {
   }
 });
 
-// Third-party login with Facebook
-router.get("/auth/facebook", passport.authenticate("facebook"));
-router.get(
-  "/auth/facebook/callback",
-  passport.authenticate("facebook", {
-    successRedirect: "/",
-    failureRedirect: "/login",
-  })
-);
-
 // Third-party login with Twitter
-router.get("/auth/twitter", passport.authenticate("twitter"));
+router.get("/twitter", passport.authenticate("twitter"));
 router.get(
-  "/auth/twitter/callback",
+  "/twitter/callback",
   passport.authenticate("twitter", {
     successRedirect: "/",
     failureRedirect: "/login",
