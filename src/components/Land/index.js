@@ -6,12 +6,12 @@ import useUser from "../../hooks/useUser";
 import { useNavigate } from "react-router-dom";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 
-const token = localStorage.getItem("token");
+// const token = localStorage.getItem("token");
 const maxRow = 21;
 const maxCol = 21;
 
 const available = "#45c0dc";
-const disable = "#e3eeee";
+// const disable = "#e3eeee";
 const owned = "#ee6969";
 const taken = "#7b69ee";
 const center = "#551d1d";
@@ -88,7 +88,7 @@ function getColor(gene, cell) {
 
 const Land = () => {
   const [genes, setGenes] = useState([]);
-  const [error, setError] = useState(null);
+  const [error] = useState(null);
   const [gene, setGene] = useState(null);
 
   const { sendMessage, lastMessage, readyState } = useWebSocket(SOCKET_URL);
