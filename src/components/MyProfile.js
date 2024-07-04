@@ -11,7 +11,7 @@ const MyProfile = () => {
     const fetchUserProfile = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_ENDPOINT}/api/profile`,
+          `${process.env.REACT_APP_API_ENDPOINT}/api/profile/me`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import useUser from "./hooks/useUser";
 
 const Layout = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useUser();
   const navigate = useNavigate();
 
   const logout = () => {
@@ -11,13 +11,6 @@ const Layout = ({ children }) => {
     setUser(null);
     navigate("/login");
   };
-
-  useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    if (storedUsername) {
-      setUser(storedUsername);
-    }
-  }, []);
 
   return (
     <div className="container">

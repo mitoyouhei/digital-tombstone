@@ -1,56 +1,75 @@
-import AutoPlayAudio from "./AutoPlayAudio";
+import Land from "./Land";
 
 const slideContainer = {
   color: "white",
-  position: "fixed",
-  width: "100%",
-  height: "100%",
-  overflow: "auto",
 };
 const slide = {
-  height: "100%",
+  height: "100vh",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
   textAlign: "center",
-  padding: "30px 20px",
+  flexDirection: "column",
+  padding: 20,
 };
-
-const HomePage = () => {
+function scrollDownOneScreen() {
+  window.scrollBy({
+    top: window.innerHeight,
+    left: 0,
+    behavior: "smooth",
+  });
+}
+const HomePage = ({ handlePlay, playing }) => {
   return (
     <div style={slideContainer}>
-      <AutoPlayAudio src="/assets/bgm.mp3" />
       <div style={slide}>
         <div>
           <h1>不朽之源</h1>
-          <p style={{ maxWidth: 700, paddingTop: 20 }}>
+          <p style={{ maxWidth: 600, paddingTop: 20 }}>
             不朽之源（Immortalise
-            Singularity）是一个融合先进科技与深刻哲思的创新项目，致力于为未来提供永恒的纪念和超越时空的存在体验。通过结合区块链技术和互联网存储，我们不仅保证数据的安全与透明，还降低了存储和访问的成本，使更多人能够轻松参与。
+            Singularity）是一个融合先进科技与深刻哲思的创新项目，致力于为未来提供永恒的纪念和超越时空的存在体验。在不朽之源，每个人都可以创建自己的灵魂基因图谱。灵魂基因代表了你独特的记忆、思想和情感，通过我们的平台，这些宝贵的精神财富将被永久保存，不受时间和空间的限制。无论是生前的点滴记忆还是未来的愿望，都可以在这里得到永恒的保留和传承。
           </p>
+          <svg
+            onClick={() => {
+              scrollDownOneScreen();
+              handlePlay();
+            }}
+            style={{
+              width: "60px",
+              height: "60px",
+              cursor: "pointer",
+              margin: "5px",
+              opacity: playing ? 0 : 1,
+              transition: "opacity 0.1s ease-in-out",
+            }}
+            viewBox="0 0 24 24"
+            fill="black"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M8 5V19L19 12L8 5Z" />
+          </svg>
         </div>
+      </div>
+      <div style={slide}>
+        <h1>灵魂基因</h1>
+        <p style={{ maxWidth: 600, paddingTop: 20 }}>
+          在不朽之源，每个人都可以创建自己的灵魂基因图谱。440个地块，这些地块排列在一个笛卡尔坐标系中。每个地块都有唯一的坐标。它将用与存储你的灵魂基因，这代表了你独特的记忆、思想和情感，通过我们的平台，这些宝贵的精神财富将被永久保存，不受时间和空间的限制。无论是过往的点滴记忆还是未来的愿望，都可以在这里得到永恒的保留和传承。{" "}
+        </p>
+        <Land />
       </div>
       <div style={slide}>
         <div>
           <h1>愿景与使命</h1>
-          <p style={{ textAlign: "left", maxWidth: 700, paddingTop: 20 }}>
-            我们的愿景是创建一个超越传统纪念方式的数字平台，让每个人都能在虚拟世界中留下自己的足迹，无论时间如何流逝，这些记忆都能被永久保存与传承。我们致力于：
+          <p style={{ textAlign: "left", maxWidth: 600, paddingTop: 20 }}>
+            我们希望通过不朽之源，为每个人提供一个超越时间和空间的纪念平台。在这里，你的灵魂基因将被永久保存，与未来紧密相连，鼓励探索和自由地生活在无垠的宇宙中。
           </p>
-          <ul style={{ textAlign: "left", maxWidth: 600 }}>
-            <li>数据永存：通过区块链技术确保所有信息的不可篡改和永久存储。</li>
-            <li>
-              普及参与：利用互联网技术降低使用门槛，让更多人能够享受这一创新服务。
-            </li>
-            <li>
-              纪念与传承：为用户提供多样化的纪念方式，包括文字、图片、视频等，让每一个纪念都富有个性和情感。
-            </li>
-          </ul>
         </div>
       </div>
       <div style={slide}>
         <div>
           <h1>核心功能</h1>
 
-          <ol style={{ textAlign: "left", maxWidth: 700, paddingTop: 20 }}>
+          <ol style={{ textAlign: "left", maxWidth: 600, paddingTop: 20 }}>
             <li>
               双重存储机制：
               <ul>
@@ -87,7 +106,7 @@ const HomePage = () => {
       <div style={slide}>
         <div>
           <h1>未来展望</h1>
-          <p style={{ textAlign: "left", maxWidth: 700, paddingTop: 20 }}>
+          <p style={{ textAlign: "left", maxWidth: 600, paddingTop: 20 }}>
             不朽之源不仅是一个纪念平台，更是一个承载未来科技与人文情感的桥梁。我们相信，通过技术的力量，可以让每一个个体的记忆和价值在时空中永久传承。加入我们，共同见证不朽的力量！
           </p>
         </div>

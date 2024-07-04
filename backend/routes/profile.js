@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require("../models/User");
 
 // 获取当前用户信息
-router.get("/profile", async (req, res) => {
+router.get("/me", async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) {
