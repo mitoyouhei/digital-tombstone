@@ -1,5 +1,3 @@
-import React, { useRef, useState } from "react";
-
 const AutoPlayAudio = ({ src, playing, handlePlay, handlePause }) => {
   return (
     <div style={{ position: "fixed", bottom: 0, right: 0 }}>
