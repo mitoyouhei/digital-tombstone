@@ -1,8 +1,10 @@
 import "./index.css";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 import useUser from "../../hooks/useUser";
 import { useNavigate } from "react-router-dom";
+import useWebSocket, { ReadyState } from "react-use-websocket";
 
 const token = localStorage.getItem("token");
 const maxRow = 21;
@@ -13,6 +15,8 @@ const disable = "#e3eeee";
 const owned = "#ee6969";
 const taken = "#7b69ee";
 const center = "#551d1d";
+
+const SOCKET_URL = "ws://localhost:5001";
 
 function getPositon([x, y]) {
   return [x - Math.floor(maxCol / 2), Math.floor(maxRow / 2) - y];
@@ -52,13 +56,14 @@ function getRandomNumber(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-const Plot = ({ cell, color }) => {
+const Plot = ({ cell, color, gene, onClick }) => {
   const navigate = useNavigate();
 
   const [user] = useUser();
   const isCenter = cell[0] === 0 && cell[1] === 0;
   const createGene = () => {
     if (isCenter) return;
+    if (gene) return alert(JSON.stringify(gene));
     if (!user) return navigate("/login");
 
     navigate("/create-gene?id=" + cell.join(","));
@@ -70,44 +75,42 @@ const Plot = ({ cell, color }) => {
       style={{
         backgroundColor: isCenter ? center : color,
       }}
-      onClick={createGene}
+      onClick={onClick ?? createGene}
       coordinate={cell.join(",")}
     ></div>
   );
 };
 
-function getColor(genes, cell) {
-  const gene = genes.find((g) => g.plotId === cell.join(","));
+function getColor(gene, cell) {
   if (!gene) return available;
   return gene.isOwned ? owned : taken;
 }
 
 const Land = () => {
   const [genes, setGenes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [gene, setGene] = useState(null);
+
+  const { sendMessage, lastMessage, readyState } = useWebSocket(SOCKET_URL);
+  useEffect(() => {
+    if (readyState === ReadyState.OPEN) {
+      sendMessage(JSON.stringify({ type: "getSoulGenes" }));
+    }
+  }, [readyState, sendMessage]);
 
   useEffect(() => {
-    const fetchSoulGenes = async () => {
-      try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_API_ENDPOINT}/api/soulGene`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setGenes(res.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching soul gene:", error);
-        setLoading(false);
+    if (lastMessage !== null) {
+      const messageData = JSON.parse(lastMessage.data);
+      if (messageData.type === "soulGenes") {
+        setGenes(messageData.data);
       }
-    };
+    }
+  }, [lastMessage]);
 
-    fetchSoulGenes();
-  }, []);
-  if (loading) {
+  if (readyState === ReadyState.CLOSED || error)
+    return <p>Error: {error || "WebSocket connection closed"}</p>;
+
+  if (readyState === ReadyState.CONNECTING) {
     return (
       <div
         className="land-container  shadow"
@@ -120,18 +123,42 @@ const Land = () => {
     );
   }
 
+  const handleClose = () => setGene(null);
   return (
     <div className="land-container rounded shadow">
+      {gene && (
+        <Modal show={gene} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>[{gene.plotId}]</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <h1>{gene.name}</h1>
+            <p>{gene.birthdate}</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={handleClose}>
+              Save Changes
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
+
       {plots.map((row, y) => {
         return (
           <div className="plot-row" key={y}>
             {row.map((cell) => {
+              const gene = genes.find((g) => g.plotId === cell.join(","));
               return (
                 <Plot
                   color={adjustColorBrightness(
-                    getColor(genes, cell),
+                    getColor(gene, cell),
                     getRandomNumber(0.9, 1.0)
                   )}
+                  gene={gene}
+                  onClick={gene ? () => setGene(gene) : null}
                   cell={cell}
                   key={cell.join("-")}
                 ></Plot>

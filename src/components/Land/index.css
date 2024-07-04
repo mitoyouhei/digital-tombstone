@@ -23,6 +23,17 @@
     transition: transform 0.1s ease-in-out, border 0.1s ease-in-out;
 }
 
+  @media (max-width: 600px) {
+
+      .plot,
+      .plot-s {
+          border: 0px solid #551d1d;
+          height: 15px;
+          width: 15px;
+          margin: 0.5px;
+          transition: transform 0.1s ease-in-out, border 0.1s ease-in-out;
+      }
+  }
 .plot:hover {
     cursor: pointer;
     border: 2px solid #551d1d;

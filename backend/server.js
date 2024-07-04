@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const MongoStore = require("connect-mongo");
 const session = require("express-session");
 const cors = require("cors");
+const http = require("http");
 const app = express();
 const tombstones = require("./routes/tombstones");
 const passport = require("./passport");
@@ -12,6 +13,7 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const soulGeneRoutes = require("./routes/soulGene");
 const authenticate = require("./middleware/authenticate");
+const createWebSocketServer = require("./websocketServer");
 const PORT = process.env.PORT || 5001;
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "your_session_secret";
@@ -42,6 +44,12 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
-app.listen(PORT, () => {
+// 创建 HTTP 服务器
+const server = http.createServer(app);
+
+// 创建并启动 WebSocket 服务器
+createWebSocketServer(server);
+
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
