@@ -16,7 +16,7 @@ const owned = "#ee6969";
 const taken = "#7b69ee";
 const center = "#551d1d";
 
-const SOCKET_URL = "ws://localhost:5001";
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
 
 function getPositon([x, y]) {
   return [x - Math.floor(maxCol / 2), Math.floor(maxRow / 2) - y];
