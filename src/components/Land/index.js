@@ -1,11 +1,18 @@
 import "./index.css";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import useUser from "../../hooks/useUser";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
+const token = localStorage.getItem("token");
 const maxRow = 21;
 const maxCol = 21;
 
-const encode = "abcdefghijklmnopqrstuvwxyz";
+const available = "#45c0dc";
+const disable = "#e3eeee";
+const owned = "#ee6969";
+const taken = "#7b69ee";
+const center = "#551d1d";
 
 function getPositon([x, y]) {
   return [x - Math.floor(maxCol / 2), Math.floor(maxRow / 2) - y];
@@ -45,26 +52,23 @@ function getRandomNumber(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-const Plot = ({ cell }) => {
+const Plot = ({ cell, color }) => {
   const navigate = useNavigate();
-  const [user] = useUser();
-  const isPoint = cell[0] === 0 && cell[1] === 0;
-  const color = isPoint
-    ? "#551d1d"
-    : adjustColorBrightness("#7b69ee", getRandomNumber(0.9, 1.0));
 
+  const [user] = useUser();
+  const isCenter = cell[0] === 0 && cell[1] === 0;
   const createGene = () => {
-    if (isPoint) return;
+    if (isCenter) return;
     if (!user) return navigate("/login");
 
-    alert(cell.join(","));
+    navigate("/create-gene?id=" + cell.join(","));
   };
 
   return (
     <div
-      className={isPoint ? "plot-s" : "plot"}
+      className={isCenter ? "plot-s" : "plot"}
       style={{
-        backgroundColor: color,
+        backgroundColor: isCenter ? center : color,
       }}
       onClick={createGene}
       coordinate={cell.join(",")}
@@ -72,14 +76,66 @@ const Plot = ({ cell }) => {
   );
 };
 
+function getColor(genes, cell) {
+  const gene = genes.find((g) => g.plotId === cell.join(","));
+  if (!gene) return available;
+  return gene.isOwned ? owned : taken;
+}
+
 const Land = () => {
+  const [genes, setGenes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSoulGenes = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_ENDPOINT}/api/soulGene`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setGenes(res.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching soul gene:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchSoulGenes();
+  }, []);
+  if (loading) {
+    return (
+      <div
+        className="land-container  shadow"
+        style={{ borderRadius: "25px", padding: "2px" }}
+      >
+        <div className="spinner-border" role="status">
+          <span className="sr-only"></span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="land-container rounded shadow">
       {plots.map((row, y) => {
         return (
           <div className="plot-row" key={y}>
             {row.map((cell) => {
-              return <Plot cell={cell} key={cell.join("-")}></Plot>;
+              return (
+                <Plot
+                  color={adjustColorBrightness(
+                    getColor(genes, cell),
+                    getRandomNumber(0.9, 1.0)
+                  )}
+                  cell={cell}
+                  key={cell.join("-")}
+                ></Plot>
+              );
             })}
           </div>
         );

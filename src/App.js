@@ -7,6 +7,8 @@ import Login from "./components/Login";
 import ForgotPassword from "./components/ForgotPassword";
 import TombstoneDetail from "./components/TombstoneDetail";
 import MyProfile from "./components/MyProfile";
+import CreateGene from "./components/CreateGene";
+import AutoPlayAudio from "./components/AutoPlayAudio";
 import Layout from "./Layout";
 
 const App = () => {
@@ -14,6 +16,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/create-gene" element={<CreateGene />} />
         <Route
           path="/create"
           element={
@@ -30,14 +33,7 @@ const App = () => {
             </Layout>
           }
         />
-        <Route
-          path="/login"
-          element={
-            <Layout>
-              <Login />
-            </Layout>
-          }
-        />
+        <Route path="/login" element={<Login />} />
         <Route
           path="/forgot-password"
           element={
@@ -63,6 +59,8 @@ const App = () => {
           }
         />
       </Routes>
+
+      <AutoPlayAudio src="/assets/bgm.mp3" />
     </Router>
   );
 };

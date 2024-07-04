@@ -1,4 +1,3 @@
-import AutoPlayAudio from "./AutoPlayAudio";
 import Land from "./Land";
 
 const slideContainer = {
@@ -20,7 +19,6 @@ const slide = {
 const HomePage = () => {
   return (
     <div style={slideContainer}>
-      <AutoPlayAudio src="/assets/bgm.mp3" />
       <div style={slide}>
         <Land />
       </div>

@@ -10,6 +10,7 @@ const tombstones = require("./routes/tombstones");
 const passport = require("./passport");
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
+const soulGeneRoutes = require("./routes/soulGene");
 const authenticate = require("./middleware/authenticate");
 const PORT = process.env.PORT || 5001;
 
@@ -30,7 +31,8 @@ app.use(passport.session());
 
 app.use("/api/tombstones", tombstones);
 app.use("/api/auth", authRouter);
-app.use("/api", authenticate, profileRouter);
+app.use("/api/profile", authenticate, profileRouter);
+app.use("/api/soulGene", authenticate, soulGeneRoutes);
 
 mongoose
   .connect(process.env.DATABASE_URL, {
