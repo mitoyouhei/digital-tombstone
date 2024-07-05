@@ -10,16 +10,29 @@ const soulGeneSlice = createSlice({
   },
 });
 
+const initUser = localStorage.getItem("user");
 const userSlice = createSlice({
   name: "user",
-  initialState: {},
+  initialState: initUser ? JSON.parse(initUser) : {},
   reducers: {
-    setUser: (state, action) => ({ ...state, ...action.payload.value }),
+    setUser: (state, action) => {
+      const user = { ...state, ...action.payload.value };
+      localStorage.setItem("user", JSON.stringify(user));
+      return user;
+    },
+    logout: (state, action) => {
+      localStorage.removeItem("user");
+      window.location.reload();
+      return {};
+    },
   },
 });
 
 export const { setGenes } = soulGeneSlice.actions;
-export const { setUser } = userSlice.actions;
+export const { setUser, logout } = userSlice.actions;
+
+
+
 
 const store = configureStore({
   reducer: {

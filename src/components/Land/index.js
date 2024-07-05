@@ -1,11 +1,9 @@
 import "./index.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import useUser from "../../hooks/useUser";
 import { useNavigate } from "react-router-dom";
-import { sendMessage } from "../../websocket";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 // const token = localStorage.getItem("token");
 const maxRow = 21;
@@ -58,12 +56,12 @@ function getRandomNumber(min, max) {
 const Plot = ({ cell, color, gene, onClick }) => {
   const navigate = useNavigate();
 
-  const [user] = useUser();
+  const user = useSelector((state) => state.user);
   const isCenter = cell[0] === 0 && cell[1] === 0;
   const createGene = () => {
     if (isCenter) return;
     if (gene) return alert(JSON.stringify(gene));
-    if (!user) return navigate("/login");
+    if (!user.token) return navigate("/login");
 
     navigate("/create-gene?id=" + cell.join(","));
   };
@@ -87,15 +85,7 @@ function getColor(gene, cell) {
 
 const Land = () => {
   const [gene, setGene] = useState(null);
-
   const genes = useSelector((state) => state.soulGene.genes);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (!genes) {
-      sendMessage({ type: "getSoulGenes" });
-    }
-  }, [genes, dispatch]);
 
   if (!genes) {
     return (

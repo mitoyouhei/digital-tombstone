@@ -1,17 +1,9 @@
-import { Link, useNavigate } from "react-router-dom";
-import useUser from "./hooks/useUser";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import store, { logout } from "./store";
 
 const Layout = ({ children }) => {
-  const [user, setUser] = useUser();
-  const navigate = useNavigate();
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
-    setUser(null);
-    navigate("/login");
-  };
-
+  const user = useSelector((state) => state.user.username);
   return (
     <div className="container">
       <header className="d-flex justify-content-between align-items-center py-3">
@@ -46,7 +38,10 @@ const Layout = ({ children }) => {
             </Link>
           )}
           {user && (
-            <button className="nav-link btn btn-link" onClick={logout}>
+            <button
+              className="nav-link btn btn-link"
+              onClick={() => store.dispatch(logout())}
+            >
               Logout
             </button>
           )}

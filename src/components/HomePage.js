@@ -20,6 +20,7 @@ function scrollDownOneScreen() {
   });
 }
 const HomePage = ({ handlePlay, playing }) => {
+
   return (
     <div style={slideContainer}>
       <div style={slide}>

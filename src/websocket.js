@@ -1,6 +1,11 @@
 import store, { setGenes, setUser } from "./store";
 
-const socket = new WebSocket(process.env.REACT_APP_SOCKET_URL);
+const initUser = localStorage.getItem("user");
+
+const socket = new WebSocket(
+  process.env.REACT_APP_SOCKET_URL +
+    (initUser ? `?token=${JSON.parse(initUser).token}` : "")
+);
 
 socket.onopen = () => {
   console.log("WebSocket connection opened");
