@@ -1,26 +1,42 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { sendMessage } from "../websocket";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const token = useSelector((state) => state.user.token);
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [navigate, token]);
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_ENDPOINT}/api/auth/login`,
-        { username, password }
-      );
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("username", res.data.username);
-      navigate("/"); // 登录成功后导航到仪表盘页面
-      window.location.replace(window.location.href);
-    } catch (error) {
-      console.error("Error logging in", error);
-    }
+
+    sendMessage({
+      type: "login",
+      body: {
+        username,
+        password,
+      },
+    });
+    // try {
+    //   const res = await axios.post(
+    //     `${process.env.REACT_APP_API_ENDPOINT}/api/auth/login`,
+    //     { username, password }
+    //   );
+    //   localStorage.setItem("token", res.data.token);
+    //   localStorage.setItem("username", res.data.username);
+    //   navigate("/"); // 登录成功后导航到仪表盘页面
+    //   window.location.replace(window.location.href);
+    // } catch (error) {
+    //   console.error("Error logging in", error);
+    // }
   };
 
   return (

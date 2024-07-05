@@ -1,4 +1,4 @@
-import store, { setGenes } from "./store";
+import store, { setGenes, setUser } from "./store";
 
 const socket = new WebSocket(process.env.REACT_APP_SOCKET_URL);
 
@@ -8,7 +8,21 @@ socket.onopen = () => {
 
 socket.onmessage = (event) => {
   const messageData = JSON.parse(event.data);
-  store.dispatch(setGenes({ key: messageData.type, value: messageData.data }));
+  switch (messageData.type) {
+    case "genes":
+      store.dispatch(
+        setGenes({ key: messageData.type, value: messageData.message })
+      );
+      break;
+    case "user":
+      store.dispatch(
+        setUser({ key: messageData.type, value: messageData.message })
+      );
+      break;
+    default:
+      console.error("Unknow socket event: ", event);
+      break;
+  }
 };
 
 socket.onclose = () => {
@@ -20,5 +34,6 @@ socket.onerror = (error) => {
 };
 
 export const sendMessage = (message) => {
-  socket.send(JSON.stringify(message));
+  const token = store.getState().user.token;
+  socket.send(JSON.stringify({ ...message, token }));
 };
