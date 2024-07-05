@@ -4,7 +4,8 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import useUser from "../../hooks/useUser";
 import { useNavigate } from "react-router-dom";
-import useWebSocket, { ReadyState } from "react-use-websocket";
+import { sendMessage } from "../../websocket";
+import { useSelector, useDispatch } from "react-redux";
 
 // const token = localStorage.getItem("token");
 const maxRow = 21;
@@ -15,8 +16,6 @@ const available = "#45c0dc";
 const owned = "#ee6969";
 const taken = "#7b69ee";
 const center = "#551d1d";
-
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
 
 function getPositon([x, y]) {
   return [x - Math.floor(maxCol / 2), Math.floor(maxRow / 2) - y];
@@ -87,30 +86,18 @@ function getColor(gene, cell) {
 }
 
 const Land = () => {
-  const [genes, setGenes] = useState([]);
-  const [error] = useState(null);
   const [gene, setGene] = useState(null);
 
-  const { sendMessage, lastMessage, readyState } = useWebSocket(SOCKET_URL);
-  useEffect(() => {
-    if (readyState === ReadyState.OPEN) {
-      sendMessage(JSON.stringify({ type: "getSoulGenes" }));
-    }
-  }, [readyState, sendMessage]);
+  const genes = useSelector((state) => state.soulGene.genes);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (lastMessage !== null) {
-      const messageData = JSON.parse(lastMessage.data);
-      if (messageData.type === "soulGenes") {
-        setGenes(messageData.data);
-      }
+    if (!genes) {
+      sendMessage({ type: "getSoulGenes" });
     }
-  }, [lastMessage]);
+  }, [genes, dispatch]);
 
-  if (readyState === ReadyState.CLOSED || error)
-    return <p>Error: {error || "WebSocket connection closed"}</p>;
-
-  if (readyState === ReadyState.CONNECTING) {
+  if (!genes) {
     return (
       <div
         className="land-container  shadow"
