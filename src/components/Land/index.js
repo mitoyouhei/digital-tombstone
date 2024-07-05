@@ -1,10 +1,9 @@
 import "./index.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import useUser from "../../hooks/useUser";
 import { useNavigate } from "react-router-dom";
-import useWebSocket, { ReadyState } from "react-use-websocket";
+import { useSelector } from "react-redux";
 
 // const token = localStorage.getItem("token");
 const maxRow = 21;
@@ -15,8 +14,6 @@ const available = "#45c0dc";
 const owned = "#ee6969";
 const taken = "#7b69ee";
 const center = "#551d1d";
-
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
 
 function getPositon([x, y]) {
   return [x - Math.floor(maxCol / 2), Math.floor(maxRow / 2) - y];
@@ -59,12 +56,12 @@ function getRandomNumber(min, max) {
 const Plot = ({ cell, color, gene, onClick }) => {
   const navigate = useNavigate();
 
-  const [user] = useUser();
+  const user = useSelector((state) => state.user);
   const isCenter = cell[0] === 0 && cell[1] === 0;
   const createGene = () => {
     if (isCenter) return;
     if (gene) return alert(JSON.stringify(gene));
-    if (!user) return navigate("/login");
+    if (!user.token) return navigate("/login");
 
     navigate("/create-gene?id=" + cell.join(","));
   };
@@ -87,30 +84,10 @@ function getColor(gene, cell) {
 }
 
 const Land = () => {
-  const [genes, setGenes] = useState([]);
-  const [error] = useState(null);
   const [gene, setGene] = useState(null);
+  const genes = useSelector((state) => state.soulGene.genes);
 
-  const { sendMessage, lastMessage, readyState } = useWebSocket(SOCKET_URL);
-  useEffect(() => {
-    if (readyState === ReadyState.OPEN) {
-      sendMessage(JSON.stringify({ type: "getSoulGenes" }));
-    }
-  }, [readyState, sendMessage]);
-
-  useEffect(() => {
-    if (lastMessage !== null) {
-      const messageData = JSON.parse(lastMessage.data);
-      if (messageData.type === "soulGenes") {
-        setGenes(messageData.data);
-      }
-    }
-  }, [lastMessage]);
-
-  if (readyState === ReadyState.CLOSED || error)
-    return <p>Error: {error || "WebSocket connection closed"}</p>;
-
-  if (readyState === ReadyState.CONNECTING) {
+  if (!genes) {
     return (
       <div
         className="land-container  shadow"

@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { useSelector } from "react-redux";
 import HomePage from "./components/HomePage";
 import CreateTombstone from "./components/CreateTombstone";
 import Register from "./components/Register";
@@ -10,10 +12,27 @@ import MyProfile from "./components/MyProfile";
 import CreateGene from "./components/CreateGene";
 import AutoPlayAudio from "./components/AutoPlayAudio";
 import Layout from "./Layout";
+import store, { logout } from "./store";
 
 const App = () => {
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef(null);
+  const user = useSelector((state) => state.user);
+
+  const userPanel = user.token ? (
+    <div className="fs-6 fw-lighter position-fixed top-0 start-0 d-flex m-1">
+      <Link className="nav-link btn btn-link" to="/register">
+        {user.username}
+      </Link>
+
+      <span
+        className="nav-link btn btn-link ms-2"
+        onClick={() => store.dispatch(logout())}
+      >
+        Logout
+      </span>
+    </div>
+  ) : null;
 
   const handlePlay = () => {
     const audio = audioRef.current;
@@ -33,6 +52,7 @@ const App = () => {
   };
   return (
     <Router>
+      {userPanel}
       <audio ref={audioRef} src="/assets/bgm.mp3" loop />
       <Routes>
         <Route
@@ -48,14 +68,7 @@ const App = () => {
             </Layout>
           }
         />
-        <Route
-          path="/register"
-          element={
-            <Layout>
-              <Register />
-            </Layout>
-          }
-        />
+        <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route
           path="/forgot-password"
