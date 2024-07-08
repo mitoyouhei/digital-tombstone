@@ -26,6 +26,7 @@ socket.onmessage = (event) => {
       break;
     default:
       console.error("Unknow socket event: ", event);
+      alert(event.data);
       break;
   }
 };
