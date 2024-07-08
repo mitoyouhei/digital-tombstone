@@ -5,7 +5,11 @@ const User = require("./models/User");
 const { encodeUserToken, decodeUserToken } = require("./util");
 
 //createGene
-async function createGene(ws, user, { plotId, name, birthdate }) {
+async function createGene(
+  ws,
+  user,
+  { _id, plotId, name, birthdate, introduction }
+) {
   if (!user) {
     return ws.send(
       JSON.stringify({
@@ -17,8 +21,27 @@ async function createGene(ws, user, { plotId, name, birthdate }) {
   const userId = user.id;
 
   try {
-    const soulGene = new SoulGene({ plotId, name, birthdate, userId });
-    await soulGene.save();
+    const existGene = await SoulGene.findOne({
+      _id,
+      isDeleted: false,
+    });
+
+    if (existGene) {
+      existGene.name = name;
+      existGene.birthdate = birthdate;
+      existGene.introduction = introduction;
+      await existGene.save();
+    } else {
+      const soulGene = new SoulGene({
+        plotId,
+        name,
+        birthdate,
+        userId,
+        introduction,
+      });
+      await soulGene.save();
+    }
+
     return sendSoulGenes(ws, user);
   } catch (error) {
     if (error.code === 11000) {

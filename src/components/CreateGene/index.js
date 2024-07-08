@@ -1,20 +1,37 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { sendMessage } from "../../websocket";
-import { useNavigate } from "react-router-dom";
+
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
 
 const CreateGene = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("id");
+  const gene = useSelector((state) => {
+    if (state.soulGene.genes) {
+      return state.soulGene.genes.find((g) => g.plotId === id);
+    }
+    return null;
+  });
+
+  const defaultValues = { birthdate: formatDate(new Date()) };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+    setValue,
+  } = useForm({ defaultValues });
 
   const token = useSelector((state) => state.user.token);
 
@@ -24,11 +41,20 @@ const CreateGene = () => {
     }
   }, [navigate, token]);
 
+  useEffect(() => {
+    gene &&
+      Object.keys(gene).forEach((key) => {
+        const value = gene[key];
+        const isBirthdate = key === "birthdate";
+        setValue(key, isBirthdate ? formatDate(new Date(value)) : value);
+      });
+  }, [setValue, gene]);
+
   const onSubmit = async (data) => {
     try {
       sendMessage({
         type: "createGene",
-        body: { ...data, plotId: id },
+        body: { ...gene, ...data, plotId: id },
       });
       navigate("/");
     } catch (error) {
@@ -88,8 +114,28 @@ const CreateGene = () => {
                 )}
               </div>
 
+              <div className="mb-3">
+                <label htmlFor="introduction" className="form-label">
+                  Personal Introduction
+                </label>
+                <textarea
+                  className={`form-control ${
+                    errors.introduction ? "is-invalid" : ""
+                  }`}
+                  id="introduction"
+                  {...register("introduction", {
+                    required: "Introduction is required",
+                  })}
+                />
+                {errors.introduction && (
+                  <div className="invalid-feedback">
+                    {errors.introduction.message}
+                  </div>
+                )}
+              </div>
+
               <button type="submit" className="btn btn-primary">
-                Create Soul Gene
+                {gene ? "Update Soul Gene" : "Create Soul Gene"}
               </button>
             </form>
           </div>

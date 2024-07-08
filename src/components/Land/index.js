@@ -86,7 +86,10 @@ function getColor(gene, cell) {
 const Land = () => {
   const [gene, setGene] = useState(null);
   const genes = useSelector((state) => state.soulGene.genes);
-
+  const navigate = useNavigate();
+  const createGene = () => {
+    navigate("/create-gene?id=" + gene.plotId);
+  };
   if (!genes) {
     return (
       <div
@@ -111,15 +114,15 @@ const Land = () => {
           <Modal.Body>
             <h1>{gene.name}</h1>
             <p>{gene.birthdate}</p>
+            <p>{gene.introduction}</p>
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
-              Close
-            </Button>
-            <Button variant="primary" onClick={handleClose}>
-              Save Changes
-            </Button>
-          </Modal.Footer>
+          {gene.isOwned ? (
+            <Modal.Footer>
+              <Button variant="primary" onClick={createGene}>
+                Edit
+              </Button>
+            </Modal.Footer>
+          ) : null}
         </Modal>
       )}
 

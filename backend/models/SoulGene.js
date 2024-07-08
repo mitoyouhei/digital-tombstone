@@ -10,6 +10,9 @@ const SoulGeneSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  introduction: {
+    type: String,
+  },
   birthdate: {
     type: Date,
     required: true,
